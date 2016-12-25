@@ -40,6 +40,7 @@
 /* USER CODE BEGIN Includes */
 #include "xprintf.h"
 #include "AQM0802A.h"
+#include "led.h"
 /* USER CODE END Includes */
 
 /* Private variables ---------------------------------------------------------*/
@@ -106,7 +107,7 @@ int main(void)
 
   /* USER CODE BEGIN 3 */
 	HAL_Delay(500);
-	HAL_GPIO_TogglePin(LD5_GPIO_Port,LD5_Pin);
+	led_toggle(LED6);
 	//xprintf("hello\n");
 	lcd.setCursor(0, 0);
 	lcd.printStr("Hello!");
