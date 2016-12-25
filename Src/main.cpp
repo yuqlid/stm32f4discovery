@@ -33,11 +33,13 @@
 /* Includes ------------------------------------------------------------------*/
 #include "main.h"
 #include "stm32f4xx_hal.h"
+#include "i2c.h"
 #include "usart.h"
 #include "gpio.h"
 
 /* USER CODE BEGIN Includes */
 #include "xprintf.h"
+#include "AQM0802A.h"
 /* USER CODE END Includes */
 
 /* Private variables ---------------------------------------------------------*/
@@ -78,21 +80,40 @@ int main(void)
   /* Initialize all configured peripherals */
   MX_GPIO_Init();
   MX_USART2_UART_Init();
+  MX_I2C2_Init();
+
 
   /* USER CODE BEGIN 2 */
   xdev_out(putch);	//xprintf enable
+  AQM0802A lcd(&hi2c2);
   /* USER CODE END 2 */
 
   /* Infinite loop */
   /* USER CODE BEGIN WHILE */
+
+	if(lcd.isonline() == false){
+		xprintf("I2C_ADD = 0x%2X is not online!\r\n", AQCM0802_ADD);
+		Error_Handler();
+	}
+
+	lcd.init();
+	lcd.contrast = 35;
+	lcd.setContrast(lcd.contrast);
+
   while (1)
   {
   /* USER CODE END WHILE */
 
   /* USER CODE BEGIN 3 */
-	  HAL_Delay(100);
-	  HAL_GPIO_TogglePin(LD5_GPIO_Port,LD5_Pin);
-	  xprintf("hello\n");
+	HAL_Delay(500);
+	HAL_GPIO_TogglePin(LD5_GPIO_Port,LD5_Pin);
+	//xprintf("hello\n");
+	lcd.setCursor(0, 0);
+	lcd.printStr("Hello!");
+	HAL_Delay(500);
+	lcd.setCursor(0, 0);
+	lcd.printStr("      ");
+
   }
   /* USER CODE END 3 */
 
