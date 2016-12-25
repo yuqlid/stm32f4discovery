@@ -33,10 +33,11 @@
 /* Includes ------------------------------------------------------------------*/
 #include "main.h"
 #include "stm32f4xx_hal.h"
+#include "usart.h"
 #include "gpio.h"
 
 /* USER CODE BEGIN Includes */
-
+#include "xprintf.h"
 /* USER CODE END Includes */
 
 /* Private variables ---------------------------------------------------------*/
@@ -76,9 +77,10 @@ int main(void)
 
   /* Initialize all configured peripherals */
   MX_GPIO_Init();
+  MX_USART2_UART_Init();
 
   /* USER CODE BEGIN 2 */
-
+  xdev_out(putch);	//xprintf enable
   /* USER CODE END 2 */
 
   /* Infinite loop */
@@ -86,10 +88,11 @@ int main(void)
   while (1)
   {
   /* USER CODE END WHILE */
-	  HAL_Delay(500);
-	  HAL_GPIO_TogglePin(LD6_GPIO_Port,LD6_Pin);
-  /* USER CODE BEGIN 3 */
 
+  /* USER CODE BEGIN 3 */
+	  HAL_Delay(100);
+	  HAL_GPIO_TogglePin(LD5_GPIO_Port,LD5_Pin);
+	  xprintf("hello\n");
   }
   /* USER CODE END 3 */
 

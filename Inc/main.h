@@ -40,6 +40,7 @@
 /* USER CODE END Includes */
 
 /* Private define ------------------------------------------------------------*/
+#define USART_Baudrate 230400
 
 #define CS_I2C_SPI_Pin GPIO_PIN_3
 #define CS_I2C_SPI_GPIO_Port GPIOE
