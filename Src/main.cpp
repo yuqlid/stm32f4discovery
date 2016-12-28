@@ -39,7 +39,7 @@
 
 /* USER CODE BEGIN Includes */
 #include "xprintf.h"
-#include "AQM0802A.h"
+#include "mpu9250.h"
 #include "led.h"
 /* USER CODE END Includes */
 
@@ -86,12 +86,13 @@ int main(void)
 
   /* USER CODE BEGIN 2 */
   xdev_out(putch);	//xprintf enable
-  AQM0802A lcd(&hi2c2);
+  mpu9250 imu(&hi2c2);
+  xprintf("hello!\n");
   /* USER CODE END 2 */
 
   /* Infinite loop */
   /* USER CODE BEGIN WHILE */
-
+/*
 	if(lcd.isonline() == false){
 		xprintf("I2C_ADD = 0x%2X is not online!\r\n", AQCM0802_ADD);
 		Error_Handler();
@@ -100,20 +101,46 @@ int main(void)
 	lcd.init();
 	lcd.contrast = 35;
 	lcd.setContrast(lcd.contrast);
+*/
+	if(imu.isonline() == false){
+		xprintf("IMU(0x%2X)  is not online!\r\n", MPU9250_I2C_ADD0);
+		Error_Handler();
+	}
+
+	if(imu.init(10,BITS_DLPF_CFG_188HZ)){		//INIT the mpu9250
+		xprintf("\nCouldn't initialize MPU9250 via SPI!");
+	}
+
+	xprintf("WHOAMI=0x%x\n",imu.whoami()); //output the I2C address to know if SPI is working, it should be 104(0x71)
+	//HAL_Delay(1);
+	xprintf("Gyro_scale=%u\n",imu.set_gyro_scale(BITS_FS_500DPS));    //Set full scale range for gyros
+	//HAL_Delay(1);
+	xprintf("Acc_scale=%u\n",imu.set_acc_scale(BITS_FS_4G));          //Set full scale range for accs
+	//HAL_Delay(1);
+	xprintf("AK8963 WHIAM=0x%2x\n",imu.AK8963_whoami());
+	//HAL_Delay(1);
+	imu.AK8963_calib_Magnetometer();
 
   while (1)
   {
   /* USER CODE END WHILE */
 
   /* USER CODE BEGIN 3 */
-	HAL_Delay(500);
+	HAL_Delay(200);
 	led_toggle(LED6);
 	//xprintf("hello\n");
-	lcd.setCursor(0, 0);
-	lcd.printStr("Hello!");
-	HAL_Delay(500);
-	lcd.setCursor(0, 0);
-	lcd.printStr("      ");
+		imu.read_all();
+		xprintf("%6d,%6d,%6d,%6d,%6d,%6d,%6d,%6d,%6d,%6d\n",
+			imu.gyroscope_data_raw[0],
+			imu.gyroscope_data_raw[1],
+			imu.gyroscope_data_raw[2],
+			imu.accelerometer_data_raw[0],
+			imu.accelerometer_data_raw[1],
+			imu.accelerometer_data_raw[2],
+			imu.Magnetometer_raw[0],
+			imu.Magnetometer_raw[1],
+			imu.Magnetometer_raw[2],
+			imu.Temperature_raw);
 
   }
   /* USER CODE END 3 */
