@@ -63,9 +63,19 @@ unsigned int mpu9250::WriteReg( uint8_t WriteAddr, uint8_t WriteData )
 #ifdef HAL_SPI_MODULE_ENABLED
 		uint8_t txdata_buf[2] = {WriteAddr, WriteData};
 		uint8_t rxdata_buf[2];
+		/*
+		mpuSpiHandle->Init.BaudRatePrescaler = SPI_BAUDRATEPRESCALER_128;
+		assert_param(IS_SPI_BAUDRATE_PRESCALER(hspi->Init.BaudRatePrescaler));
+		WRITE_REG(mpuSpiHandle->Instance->CR1, mpuSpiHandle->Init.BaudRatePrescaler );
+		*/
 		select();
 		HAL_SPI_TransmitReceive(mpuSpiHandle, (uint8_t*)txdata_buf, (uint8_t*)rxdata_buf, 2 , 1);
 		deselect();
+		/*
+		mpuSpiHandle->Init.BaudRatePrescaler = SPI_BAUDRATEPRESCALER_4;
+		assert_param(IS_SPI_BAUDRATE_PRESCALER(hspi->Init.BaudRatePrescaler));
+		WRITE_REG(mpuSpiHandle->Instance->CR1, mpuSpiHandle->Init.BaudRatePrescaler );
+		*/
 #endif /* HAL_SPI_MODULE_ENABLED */
 	}else if(commtype == MPU9250_COMMS_I2C){
 #ifdef HAL_I2C_MODULE_ENABLED

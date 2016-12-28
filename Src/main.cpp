@@ -33,7 +33,7 @@
 /* Includes ------------------------------------------------------------------*/
 #include "main.h"
 #include "stm32f4xx_hal.h"
-#include "i2c.h"
+#include "spi.h"
 #include "usart.h"
 #include "gpio.h"
 
@@ -81,12 +81,12 @@ int main(void)
   /* Initialize all configured peripherals */
   MX_GPIO_Init();
   MX_USART2_UART_Init();
-  MX_I2C2_Init();
+  MX_SPI1_Init();
 
 
   /* USER CODE BEGIN 2 */
   xdev_out(putch);	//xprintf enable
-  mpu9250 imu(&hi2c2);
+  mpu9250 imu(&hspi1,mpu9250_Select_GPIO_Port,mpu9250_Select_Pin);
   xprintf("hello!\n");
   /* USER CODE END 2 */
 
@@ -102,11 +102,12 @@ int main(void)
 	lcd.contrast = 35;
 	lcd.setContrast(lcd.contrast);
 */
+  /*
 	if(imu.isonline() == false){
 		xprintf("IMU(0x%2X)  is not online!\r\n", MPU9250_I2C_ADD0);
 		Error_Handler();
 	}
-
+*/
 	if(imu.init(10,BITS_DLPF_CFG_188HZ)){		//INIT the mpu9250
 		xprintf("\nCouldn't initialize MPU9250 via SPI!");
 	}
@@ -126,7 +127,7 @@ int main(void)
   /* USER CODE END WHILE */
 
   /* USER CODE BEGIN 3 */
-	HAL_Delay(200);
+	HAL_Delay(50);
 	led_toggle(LED6);
 	//xprintf("hello\n");
 		imu.read_all();
