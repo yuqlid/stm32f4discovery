@@ -24,7 +24,7 @@
 							<option id="fr.ac6.managedbuild.option.gnu.cross.fpu.144889407" name="Floating point hardware" superClass="fr.ac6.managedbuild.option.gnu.cross.fpu" value="fr.ac6.managedbuild.option.gnu.cross.fpu.fpv4-sp-d16" valueType="enumerated"/>
 							<option id="fr.ac6.managedbuild.option.gnu.cross.floatabi.530280246" name="Floating-point ABI" superClass="fr.ac6.managedbuild.option.gnu.cross.floatabi" value="fr.ac6.managedbuild.option.gnu.cross.floatabi.hard" valueType="enumerated"/>
 							<targetPlatform archList="all" binaryParser="org.eclipse.cdt.core.ELF" id="fr.ac6.managedbuild.targetPlatform.gnu.cross.1254929303" isAbstract="false" osList="all" superClass="fr.ac6.managedbuild.targetPlatform.gnu.cross"/>
-							<builder buildPath="${workspace_loc:/stm32f4discovery}/Debug" id="fr.ac6.managedbuild.builder.gnu.cross.175138083" keepEnvironmentInBuildfile="false" managedBuildOn="true" name="Gnu Make Builder" superClass="fr.ac6.managedbuild.builder.gnu.cross">
+							<builder arguments="-j" buildPath="${workspace_loc:/stm32f4discovery}/Debug" command="make" id="fr.ac6.managedbuild.builder.gnu.cross.175138083" keepEnvironmentInBuildfile="false" managedBuildOn="true" name="Gnu Make Builder" superClass="fr.ac6.managedbuild.builder.gnu.cross">
 								<outputEntries>
 									<entry flags="VALUE_WORKSPACE_PATH|RESOLVED" kind="outputPath" name="Debug"/>
 									<entry flags="VALUE_WORKSPACE_PATH|RESOLVED" kind="outputPath" name="Release"/>
@@ -39,18 +39,22 @@
 									<listOptionValue builtIn="false" value="../Drivers/STM32F4xx_HAL_Driver/Inc/Legacy"/>
 									<listOptionValue builtIn="false" value="../Drivers/CMSIS/Device/ST/STM32F4xx/Include"/>
 									<listOptionValue builtIn="false" value="../Drivers/CMSIS/Include"/>
-									<listOptionValue builtIn="false" value="../Inc"/>
-									<listOptionValue builtIn="false" value="../Drivers/CMSIS/Include"/>
-									<listOptionValue builtIn="false" value="../Drivers/CMSIS/Include"/>
-									<listOptionValue builtIn="false" value="../Drivers/CMSIS/Include"/>
-									<listOptionValue builtIn="false" value="../Drivers/CMSIS/Include"/>
-									<listOptionValue builtIn="false" value="../Drivers/CMSIS/Include"/>
+									<listOptionValue builtIn="false" value="../Drivers/EMD/driver/eMPL"/>
+									<listOptionValue builtIn="false" value="../Drivers/EMD/driver/include"/>
+									<listOptionValue builtIn="false" value="../Drivers/EMD/driver/stm32L"/>
+									<listOptionValue builtIn="false" value="../Drivers/EMD/eMPL-hal"/>
+									<listOptionValue builtIn="false" value="../Drivers/EMD/mpl"/>
+									<listOptionValue builtIn="false" value="../Drivers/EMD/mllite"/>
 								</option>
 								<option id="gnu.c.compiler.option.preprocessor.def.symbols.353862434" name="Defined symbols (-D)" superClass="gnu.c.compiler.option.preprocessor.def.symbols" useByScannerDiscovery="false" valueType="definedSymbols">
 									<listOptionValue builtIn="false" value="__weak=&quot;__attribute__((weak))&quot;"/>
 									<listOptionValue builtIn="false" value="__packed=&quot;__attribute__((__packed__))&quot;"/>
 									<listOptionValue builtIn="false" value="USE_HAL_DRIVER"/>
 									<listOptionValue builtIn="false" value="STM32F407xx"/>
+									<listOptionValue builtIn="false" value="EMPL_TARGET_STM32F4"/>
+									<listOptionValue builtIn="false" value="MPU9250"/>
+									<listOptionValue builtIn="false" value="ARM_MATH_CM4"/>
+									<listOptionValue builtIn="false" value="EMPL"/>
 								</option>
 								<option id="fr.ac6.managedbuild.gnu.c.compiler.option.misc.other.673296558" superClass="fr.ac6.managedbuild.gnu.c.compiler.option.misc.other" useByScannerDiscovery="false" value="-fmessage-length=0" valueType="string"/>
 								<inputType id="fr.ac6.managedbuild.tool.gnu.cross.c.compiler.input.c.1514298755" superClass="fr.ac6.managedbuild.tool.gnu.cross.c.compiler.input.c"/>
@@ -65,12 +69,22 @@
 									<listOptionValue builtIn="false" value="../Drivers/STM32F4xx_HAL_Driver/Inc/Legacy"/>
 									<listOptionValue builtIn="false" value="../Drivers/CMSIS/Device/ST/STM32F4xx/Include"/>
 									<listOptionValue builtIn="false" value="../Drivers/CMSIS/Include"/>
+									<listOptionValue builtIn="false" value="../Drivers/EMD/driver/eMPL"/>
+									<listOptionValue builtIn="false" value="../Drivers/EMD/driver/include"/>
+									<listOptionValue builtIn="false" value="../Drivers/EMD/driver/stm32L"/>
+									<listOptionValue builtIn="false" value="../Drivers/EMD/eMPL-hal"/>
+									<listOptionValue builtIn="false" value="../Drivers/EMD/mpl"/>
+									<listOptionValue builtIn="false" value="../Drivers/EMD/mllite"/>
 								</option>
 								<option id="gnu.cpp.compiler.option.preprocessor.def.1852458672" name="Defined symbols (-D)" superClass="gnu.cpp.compiler.option.preprocessor.def" useByScannerDiscovery="false" valueType="definedSymbols">
 									<listOptionValue builtIn="false" value="__weak=&quot;__attribute__((weak))&quot;"/>
 									<listOptionValue builtIn="false" value="__packed=&quot;__attribute__((__packed__))&quot;"/>
 									<listOptionValue builtIn="false" value="USE_HAL_DRIVER"/>
 									<listOptionValue builtIn="false" value="STM32F407xx"/>
+									<listOptionValue builtIn="false" value="EMPL_TARGET_STM32F4"/>
+									<listOptionValue builtIn="false" value="MPU9250"/>
+									<listOptionValue builtIn="false" value="ARM_MATH_CM4"/>
+									<listOptionValue builtIn="false" value="EMPL"/>
 								</option>
 								<inputType id="fr.ac6.managedbuild.tool.gnu.cross.cpp.compiler.input.cpp.31941972" superClass="fr.ac6.managedbuild.tool.gnu.cross.cpp.compiler.input.cpp"/>
 								<inputType id="fr.ac6.managedbuild.tool.gnu.cross.cpp.compiler.input.s.603978081" superClass="fr.ac6.managedbuild.tool.gnu.cross.cpp.compiler.input.s"/>
@@ -88,6 +102,12 @@
 							<tool id="fr.ac6.managedbuild.tool.gnu.cross.cpp.linker.392219231" name="MCU G++ Linker" superClass="fr.ac6.managedbuild.tool.gnu.cross.cpp.linker">
 								<option id="fr.ac6.managedbuild.tool.gnu.cross.cpp.linker.script.1146940961" name="Linker Script (-T)" superClass="fr.ac6.managedbuild.tool.gnu.cross.cpp.linker.script" value="../STM32F407VGTx_FLASH.ld" valueType="string"/>
 								<option id="gnu.cpp.link.option.flags.728704050" name="Linker flags" superClass="gnu.cpp.link.option.flags" value="-specs=nosys.specs -specs=nano.specs" valueType="string"/>
+								<option id="gnu.cpp.link.option.paths.1852029480" superClass="gnu.cpp.link.option.paths" valueType="libPaths">
+									<listOptionValue builtIn="false" value="../Drivers/EMD/mpl"/>
+								</option>
+								<option id="gnu.cpp.link.option.libs.132260602" superClass="gnu.cpp.link.option.libs" valueType="libs">
+									<listOptionValue builtIn="false" srcPrefixMapping="" srcRootPath="" value="libmplmpu"/>
+								</option>
 								<inputType id="cdt.managedbuild.tool.gnu.cpp.linker.input.904494081" superClass="cdt.managedbuild.tool.gnu.cpp.linker.input">
 									<additionalInput kind="additionalinputdependency" paths="$(USER_OBJS)"/>
 									<additionalInput kind="additionalinput" paths="$(LIBS)"/>
@@ -97,6 +117,12 @@
 							<tool id="fr.ac6.managedbuild.tool.gnu.cross.assembler.1436771112" name="MCU GCC Assembler" superClass="fr.ac6.managedbuild.tool.gnu.cross.assembler">
 								<option id="gnu.both.asm.option.include.paths.625789526" name="Include paths (-I)" superClass="gnu.both.asm.option.include.paths" valueType="includePath">
 									<listOptionValue builtIn="false" value=""/>
+									<listOptionValue builtIn="false" value="../Drivers/EMD/driver/eMPL"/>
+									<listOptionValue builtIn="false" value="../Drivers/EMD/driver/include"/>
+									<listOptionValue builtIn="false" value="../Drivers/EMD/driver/stm32L"/>
+									<listOptionValue builtIn="false" value="../Drivers/EMD/eMPL-hal"/>
+									<listOptionValue builtIn="false" value="../Drivers/EMD/mpl"/>
+									<listOptionValue builtIn="false" value="../Drivers/EMD/mllite"/>
 								</option>
 								<inputType id="cdt.managedbuild.tool.gnu.assembler.input.146394301" superClass="cdt.managedbuild.tool.gnu.assembler.input"/>
 								<inputType id="fr.ac6.managedbuild.tool.gnu.cross.assembler.input.98998908" superClass="fr.ac6.managedbuild.tool.gnu.cross.assembler.input"/>
@@ -120,8 +146,8 @@
 	</storageModule>
 	<storageModule moduleId="org.eclipse.cdt.core.LanguageSettingsProviders"/>
 	<storageModule moduleId="refreshScope" versionNumber="2">
-		<configuration artifactName="stm32f4discovery" configurationName="Debug">
-			<resource resourceType="PROJECT" workspacePath="stm32f4discovery"/>
+		<configuration configurationName="Debug">
+			<resource resourceType="PROJECT" workspacePath="/stm32f4discovery"/>
 		</configuration>
 	</storageModule>
 	<storageModule moduleId="org.eclipse.cdt.make.core.buildtargets"/>
@@ -136,4 +162,5 @@
 			<autodiscovery enabled="true" problemReportingEnabled="true" selectedProfileId=""/>
 		</scannerConfigBuildInfo>
 	</storageModule>
+	<storageModule moduleId="org.eclipse.cdt.internal.ui.text.commentOwnerProjectMappings"/>
 </cproject>
