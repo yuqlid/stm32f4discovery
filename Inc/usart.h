@@ -54,6 +54,7 @@
 extern UART_HandleTypeDef huart2;
 
 /* USER CODE BEGIN Private defines */
+
 #define UartInst    huart2.Instance
 /* USART Definition */
 #define UART_BUFSIZE            128     /* Buffer size MUST Takes power of 2(64,128,256,512...) */
@@ -76,6 +77,8 @@ extern uint8_t getch(void);
 extern uint8_t keypressed(void);
 extern void cputs(char *s);
 extern void cgets(char *s, int bufsize);
+
+extern void UART_Callback(void);
 
 /* Structs of UART(This is Based on AVRX uC Sample!!!) */
 /* @brief USART transmit and receive ring buffer. */

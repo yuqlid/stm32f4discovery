@@ -38,7 +38,7 @@
 #include "gpio.h"
 
 /* USER CODE BEGIN Includes */
-#include "xprintf.h"
+//#include "xprintf.h"
 //#include "AQM0802A.h"
 #include "led.h"
 //#include "syscalls_if.h"

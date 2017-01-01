@@ -38,6 +38,7 @@
 #include "gpio.h"
 
 /* USER CODE BEGIN 0 */
+#include "led.h"
 static USART_Buffer_t* pUSART_Buf;
 USART_Buffer_t USARTx_Buf;
 /* USER CODE END 0 */
@@ -100,7 +101,8 @@ void HAL_UART_MspInit(UART_HandleTypeDef* uartHandle)
     USARTx_Buf.TX_Head = 0;
 
     /* Enable UART Receive interrupts */
-    UartInst->CR1 |= USART_CR1_RXNEIE;
+    __HAL_UART_ENABLE_IT(uartHandle, UART_IT_RXNE);
+    //UartInst->CR1 |= USART_CR1_RXNEIE;
   /* USER CODE END USART2_MspInit 1 */
   }
 }
@@ -330,6 +332,48 @@ void cgets(char *s, int bufsize)
         }
     }
     return;
+}
+
+void UART_Callback(void){
+
+    uint32_t IntStat = UartInst->SR;
+
+    if(IntStat & USART_SR_RXNE)
+    {
+        /* Advance buffer head. */
+        unsigned int tempRX_Head = ((&USARTx_Buf)->RX_Head + 1) & (UART_BUFSIZE-1);
+
+        /* Check for overflow. */
+        unsigned int tempRX_Tail = (&USARTx_Buf)->RX_Tail;
+        uint8_t data =  UartInst->DR;
+
+        if (tempRX_Head == tempRX_Tail) {
+            /* Overflow MAX size Situation */
+            /* Disable the UART Receive interrupt */
+            UartInst->CR1 &= ~(USART_CR1_RXNEIE);
+        }else{
+            (&USARTx_Buf)->RX[(&USARTx_Buf)->RX_Head] = data;
+            (&USARTx_Buf)->RX_Head = tempRX_Head;
+        }
+    }
+
+    if(IntStat & USART_SR_TXE)
+    {
+        /* Check if all data is transmitted. */
+        unsigned int tempTX_Tail = (&USARTx_Buf)->TX_Tail;
+        if ((&USARTx_Buf)->TX_Head == tempTX_Tail){
+            /* Overflow MAX size Situation */
+            /* Disable the UART Transmit interrupt */
+            UartInst->CR1 &= ~(USART_CR1_TXEIE);
+        }else{
+            /* Start transmitting. */
+            uint8_t data = (&USARTx_Buf)->TX[(&USARTx_Buf)->TX_Tail];
+            UartInst->DR = data;
+
+            /* Advance buffer tail. */
+            (&USARTx_Buf)->TX_Tail = ((&USARTx_Buf)->TX_Tail + 1) & (UART_BUFSIZE-1);
+        }
+    }
 }
 /* USER CODE END 1 */
 
