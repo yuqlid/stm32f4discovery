@@ -55,6 +55,9 @@
 									<listOptionValue builtIn="false" value="MPU9250"/>
 									<listOptionValue builtIn="false" value="ARM_MATH_CM4"/>
 									<listOptionValue builtIn="false" value="EMPL"/>
+									<listOptionValue builtIn="false" value="USE_DMP"/>
+									<listOptionValue builtIn="false" value="MPL_LOG_NDEBUG=1"/>
+									<listOptionValue builtIn="false" value="REMOVE_LOGGING"/>
 								</option>
 								<option id="fr.ac6.managedbuild.gnu.c.compiler.option.misc.other.673296558" superClass="fr.ac6.managedbuild.gnu.c.compiler.option.misc.other" useByScannerDiscovery="false" value="-fmessage-length=0" valueType="string"/>
 								<inputType id="fr.ac6.managedbuild.tool.gnu.cross.c.compiler.input.c.1514298755" superClass="fr.ac6.managedbuild.tool.gnu.cross.c.compiler.input.c"/>
@@ -85,6 +88,9 @@
 									<listOptionValue builtIn="false" value="MPU9250"/>
 									<listOptionValue builtIn="false" value="ARM_MATH_CM4"/>
 									<listOptionValue builtIn="false" value="EMPL"/>
+									<listOptionValue builtIn="false" value="USE_DMP"/>
+									<listOptionValue builtIn="false" value="MPL_LOG_NDEBUG=1"/>
+									<listOptionValue builtIn="false" value="REMOVE_LOGGING"/>
 								</option>
 								<inputType id="fr.ac6.managedbuild.tool.gnu.cross.cpp.compiler.input.cpp.31941972" superClass="fr.ac6.managedbuild.tool.gnu.cross.cpp.compiler.input.cpp"/>
 								<inputType id="fr.ac6.managedbuild.tool.gnu.cross.cpp.compiler.input.s.603978081" superClass="fr.ac6.managedbuild.tool.gnu.cross.cpp.compiler.input.s"/>
@@ -102,10 +108,10 @@
 							<tool id="fr.ac6.managedbuild.tool.gnu.cross.cpp.linker.392219231" name="MCU G++ Linker" superClass="fr.ac6.managedbuild.tool.gnu.cross.cpp.linker">
 								<option id="fr.ac6.managedbuild.tool.gnu.cross.cpp.linker.script.1146940961" name="Linker Script (-T)" superClass="fr.ac6.managedbuild.tool.gnu.cross.cpp.linker.script" value="../STM32F407VGTx_FLASH.ld" valueType="string"/>
 								<option id="gnu.cpp.link.option.flags.728704050" name="Linker flags" superClass="gnu.cpp.link.option.flags" value="-specs=nosys.specs -specs=nano.specs" valueType="string"/>
-								<option id="gnu.cpp.link.option.paths.1852029480" superClass="gnu.cpp.link.option.paths" valueType="libPaths">
+								<option id="gnu.cpp.link.option.paths.1852029480" name="Library search path (-L)" superClass="gnu.cpp.link.option.paths" valueType="libPaths">
 									<listOptionValue builtIn="false" value="../Drivers/EMD/mpl"/>
 								</option>
-								<option id="gnu.cpp.link.option.libs.132260602" superClass="gnu.cpp.link.option.libs" valueType="libs">
+								<option id="gnu.cpp.link.option.libs.132260602" name="Libraries (-l)" superClass="gnu.cpp.link.option.libs" valueType="libs">
 									<listOptionValue builtIn="false" srcPrefixMapping="" srcRootPath="" value="libmplmpu"/>
 								</option>
 								<inputType id="cdt.managedbuild.tool.gnu.cpp.linker.input.904494081" superClass="cdt.managedbuild.tool.gnu.cpp.linker.input">
@@ -132,7 +138,7 @@
 					<fileInfo id="fr.ac6.managedbuild.config.gnu.cross.exe.debug.1868988223.410061573" name="xprintf.h" rcbsApplicability="disable" resourcePath="Inc/xprintf.h" toolsToInvoke=""/>
 					<fileInfo id="fr.ac6.managedbuild.config.gnu.cross.exe.debug.1868988223.2092120442" name="AQM0802A.h" rcbsApplicability="disable" resourcePath="Inc/AQM0802A.h" toolsToInvoke=""/>
 					<sourceEntries>
-						<entry flags="VALUE_WORKSPACE_PATH|RESOLVED" kind="sourcePath" name="Drivers"/>
+						<entry excluding="EMD/driver/include/mlos.h" flags="VALUE_WORKSPACE_PATH|RESOLVED" kind="sourcePath" name="Drivers"/>
 						<entry excluding="AQM0802A.h|xprintf.h|uart_support.h" flags="VALUE_WORKSPACE_PATH|RESOLVED" kind="sourcePath" name="Inc"/>
 						<entry excluding="AQM0802A.cpp|xprintf.c" flags="VALUE_WORKSPACE_PATH|RESOLVED" kind="sourcePath" name="Src"/>
 					</sourceEntries>

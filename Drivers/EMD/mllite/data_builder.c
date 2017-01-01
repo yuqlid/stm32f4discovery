@@ -64,11 +64,6 @@ struct inv_data_builder_t {
     struct process_t process[INV_MAX_DATA_CB];
     struct inv_db_save_t save;
     int compass_disturbance;
-#ifdef INV_PLAYBACK_DBG
-    int debug_mode;
-    int last_mode;
-    FILE *file;
-#endif
 };
 
 void inv_apply_calibration(struct inv_single_sensor_t *sensor, const long *bias);
@@ -79,29 +74,6 @@ static struct inv_sensor_cal_t sensors;
 
 /** Change this key if the data being stored by this file changes */
 #define INV_DB_SAVE_KEY 53395
-
-#ifdef INV_PLAYBACK_DBG
-
-/** Turn on data logging to allow playback of same scenario at a later time.
-* @param[in] file File to write to, must be open.
-*/
-void inv_turn_on_data_logging(FILE *file)
-{
-    MPL_LOGV("input data logging started\n");
-    inv_data_builder.file = file;
-    inv_data_builder.debug_mode = RD_RECORD;
-}
-
-/** Turn off data logging to allow playback of same scenario at a later time.
-* File passed to inv_turn_on_data_logging() must be closed after calling this.
-*/
-void inv_turn_off_data_logging()
-{
-    MPL_LOGV("input data logging stopped\n");
-    inv_data_builder.debug_mode = RD_NO_DEBUG;
-    inv_data_builder.file = NULL;
-}
-#endif
 
 /** This function receives the data that was stored in non-volatile memory between power off */
 static inv_error_t inv_db_load_func(const unsigned char *data)
@@ -195,14 +167,6 @@ void set_sensor_orientation_and_scale(struct inv_single_sensor_t *sensor,
 */
 void inv_set_gyro_orientation_and_scale(int orientation, long sensitivity)
 {
-#ifdef INV_PLAYBACK_DBG
-    if (inv_data_builder.debug_mode == RD_RECORD) {
-        int type = PLAYBACK_DBG_TYPE_G_ORIENT;
-        fwrite(&type, sizeof(type), 1, inv_data_builder.file);
-        fwrite(&orientation, sizeof(orientation), 1, inv_data_builder.file);
-        fwrite(&sensitivity, sizeof(sensitivity), 1, inv_data_builder.file);
-    }
-#endif
     set_sensor_orientation_and_scale(&sensors.gyro, orientation,
                                      sensitivity);
 }
@@ -212,13 +176,6 @@ void inv_set_gyro_orientation_and_scale(int orientation, long sensitivity)
 */
 void inv_set_gyro_sample_rate(long sample_rate_us)
 {
-#ifdef INV_PLAYBACK_DBG
-    if (inv_data_builder.debug_mode == RD_RECORD) {
-        int type = PLAYBACK_DBG_TYPE_G_SAMPLE_RATE;
-        fwrite(&type, sizeof(type), 1, inv_data_builder.file);
-        fwrite(&sample_rate_us, sizeof(sample_rate_us), 1, inv_data_builder.file);
-    }
-#endif
     sensors.gyro.sample_rate_us = sample_rate_us;
     sensors.gyro.sample_rate_ms = sample_rate_us / 1000;
     if (sensors.gyro.bandwidth == 0) {
@@ -231,13 +188,6 @@ void inv_set_gyro_sample_rate(long sample_rate_us)
 */
 void inv_set_accel_sample_rate(long sample_rate_us)
 {
-#ifdef INV_PLAYBACK_DBG
-    if (inv_data_builder.debug_mode == RD_RECORD) {
-        int type = PLAYBACK_DBG_TYPE_A_SAMPLE_RATE;
-        fwrite(&type, sizeof(type), 1, inv_data_builder.file);
-        fwrite(&sample_rate_us, sizeof(sample_rate_us), 1, inv_data_builder.file);
-    }
-#endif
     sensors.accel.sample_rate_us = sample_rate_us;
     sensors.accel.sample_rate_ms = sample_rate_us / 1000;
     if (sensors.accel.bandwidth == 0) {
@@ -250,13 +200,6 @@ void inv_set_accel_sample_rate(long sample_rate_us)
 */
 void inv_set_compass_sample_rate(long sample_rate_us)
 {
-#ifdef INV_PLAYBACK_DBG
-    if (inv_data_builder.debug_mode == RD_RECORD) {
-        int type = PLAYBACK_DBG_TYPE_C_SAMPLE_RATE;
-        fwrite(&type, sizeof(type), 1, inv_data_builder.file);
-        fwrite(&sample_rate_us, sizeof(sample_rate_us), 1, inv_data_builder.file);
-    }
-#endif
     sensors.compass.sample_rate_us = sample_rate_us;
     sensors.compass.sample_rate_ms = sample_rate_us / 1000;
     if (sensors.compass.bandwidth == 0) {
@@ -284,13 +227,6 @@ void inv_get_compass_sample_rate_ms(long *sample_rate_ms)
 */
 void inv_set_quat_sample_rate(long sample_rate_us)
 {
-#ifdef INV_PLAYBACK_DBG
-    if (inv_data_builder.debug_mode == RD_RECORD) {
-        int type = PLAYBACK_DBG_TYPE_Q_SAMPLE_RATE;
-        fwrite(&type, sizeof(type), 1, inv_data_builder.file);
-        fwrite(&sample_rate_us, sizeof(sample_rate_us), 1, inv_data_builder.file);
-    }
-#endif
     sensors.quat.sample_rate_us = sample_rate_us;
     sensors.quat.sample_rate_ms = sample_rate_us / 1000;
 }
@@ -381,14 +317,6 @@ inv_time_t inv_get_last_timestamp()
 */
 void inv_set_accel_orientation_and_scale(int orientation, long sensitivity)
 {
-#ifdef INV_PLAYBACK_DBG
-    if (inv_data_builder.debug_mode == RD_RECORD) {
-        int type = PLAYBACK_DBG_TYPE_A_ORIENT;
-        fwrite(&type, sizeof(type), 1, inv_data_builder.file);
-        fwrite(&orientation, sizeof(orientation), 1, inv_data_builder.file);
-        fwrite(&sensitivity, sizeof(sensitivity), 1, inv_data_builder.file);
-    }
-#endif
     set_sensor_orientation_and_scale(&sensors.accel, orientation,
                                      sensitivity);
 }
@@ -404,14 +332,6 @@ void inv_set_accel_orientation_and_scale(int orientation, long sensitivity)
 */
 void inv_set_compass_orientation_and_scale(int orientation, long sensitivity)
 {
-#ifdef INV_PLAYBACK_DBG
-    if (inv_data_builder.debug_mode == RD_RECORD) {
-        int type = PLAYBACK_DBG_TYPE_C_ORIENT;
-        fwrite(&type, sizeof(type), 1, inv_data_builder.file);
-        fwrite(&orientation, sizeof(orientation), 1, inv_data_builder.file);
-        fwrite(&sensitivity, sizeof(sensitivity), 1, inv_data_builder.file);
-    }
-#endif
     set_sensor_orientation_and_scale(&sensors.compass, orientation, sensitivity);
 }
 
@@ -631,15 +551,6 @@ void inv_get_accel_bias(long *bias, long *temp)
  */
 inv_error_t inv_build_accel(const long *accel, int status, inv_time_t timestamp)
 {
-#ifdef INV_PLAYBACK_DBG
-    if (inv_data_builder.debug_mode == RD_RECORD) {
-        int type = PLAYBACK_DBG_TYPE_ACCEL;
-        fwrite(&type, sizeof(type), 1, inv_data_builder.file);
-        fwrite(accel, sizeof(accel[0]), 3, inv_data_builder.file);
-        fwrite(&timestamp, sizeof(timestamp), 1, inv_data_builder.file);
-    }
-#endif
-
     if ((status & INV_CALIBRATED) == 0) {
         sensors.accel.raw[0] = (short)accel[0];
         sensors.accel.raw[1] = (short)accel[1];
@@ -670,14 +581,6 @@ inv_error_t inv_build_accel(const long *accel, int status, inv_time_t timestamp)
 */
 inv_error_t inv_build_gyro(const short *gyro, inv_time_t timestamp)
 {
-#ifdef INV_PLAYBACK_DBG
-    if (inv_data_builder.debug_mode == RD_RECORD) {
-        int type = PLAYBACK_DBG_TYPE_GYRO;
-        fwrite(&type, sizeof(type), 1, inv_data_builder.file);
-        fwrite(gyro, sizeof(gyro[0]), 3, inv_data_builder.file);
-        fwrite(&timestamp, sizeof(timestamp), 1, inv_data_builder.file);
-    }
-#endif
 
     memcpy(sensors.gyro.raw, gyro, 3 * sizeof(short));
     sensors.gyro.status |= INV_NEW_DATA | INV_RAW_DATA | INV_SENSOR_ON;
@@ -702,14 +605,6 @@ inv_error_t inv_build_gyro(const short *gyro, inv_time_t timestamp)
 inv_error_t inv_build_compass(const long *compass, int status,
                               inv_time_t timestamp)
 {
-#ifdef INV_PLAYBACK_DBG
-    if (inv_data_builder.debug_mode == RD_RECORD) {
-        int type = PLAYBACK_DBG_TYPE_COMPASS;
-        fwrite(&type, sizeof(type), 1, inv_data_builder.file);
-        fwrite(compass, sizeof(compass[0]), 3, inv_data_builder.file);
-        fwrite(&timestamp, sizeof(timestamp), 1, inv_data_builder.file);
-    }
-#endif
 
     if ((status & INV_CALIBRATED) == 0) {
         long data[3];
@@ -743,14 +638,6 @@ inv_error_t inv_build_compass(const long *compass, int status,
  */
 inv_error_t inv_build_temp(const long temp, inv_time_t timestamp)
 {
-#ifdef INV_PLAYBACK_DBG
-    if (inv_data_builder.debug_mode == RD_RECORD) {
-        int type = PLAYBACK_DBG_TYPE_TEMPERATURE;
-        fwrite(&type, sizeof(type), 1, inv_data_builder.file);
-        fwrite(&temp, sizeof(temp), 1, inv_data_builder.file);
-        fwrite(&timestamp, sizeof(timestamp), 1, inv_data_builder.file);
-    }
-#endif
     sensors.temp.calibrated[0] = temp;
     sensors.temp.status |= INV_NEW_DATA | INV_RAW_DATA | INV_SENSOR_ON;
     sensors.temp.timestamp_prev = sensors.temp.timestamp;
@@ -771,15 +658,6 @@ inv_error_t inv_build_temp(const long temp, inv_time_t timestamp)
 */
 inv_error_t inv_build_quat(const long *quat, int status, inv_time_t timestamp)
 {
-#ifdef INV_PLAYBACK_DBG
-    if (inv_data_builder.debug_mode == RD_RECORD) {
-        int type = PLAYBACK_DBG_TYPE_QUAT;
-        fwrite(&type, sizeof(type), 1, inv_data_builder.file);
-        fwrite(quat, sizeof(quat[0]), 4, inv_data_builder.file);
-        fwrite(&timestamp, sizeof(timestamp), 1, inv_data_builder.file);
-    }
-#endif
-    
     memcpy(sensors.quat.raw, quat, sizeof(sensors.quat.raw));
     sensors.quat.timestamp = timestamp;
     sensors.quat.status |= INV_NEW_DATA | INV_RAW_DATA | INV_SENSOR_ON;
@@ -928,12 +806,6 @@ inv_error_t inv_execute_on_data(void)
     int kk;
     int mode;
 
-#ifdef INV_PLAYBACK_DBG
-    if (inv_data_builder.debug_mode == RD_RECORD) {
-        int type = PLAYBACK_DBG_TYPE_EXECUTE;
-        fwrite(&type, sizeof(type), 1, inv_data_builder.file);
-    }
-#endif
     // Determine what new data we have
     mode = 0;
     if (sensors.gyro.status & INV_NEW_DATA)

@@ -154,12 +154,6 @@ typedef enum {
 /** Maximum number of data callbacks that are supported. Safe to increase if needed.*/
 #define INV_MAX_DATA_CB 20
 
-#ifdef INV_PLAYBACK_DBG
-#include <stdio.h>
-void inv_turn_on_data_logging(FILE *file);
-void inv_turn_off_data_logging();
-#endif
-
 void inv_set_gyro_orientation_and_scale(int orientation, long sensitivity);
 void inv_set_accel_orientation_and_scale(int orientation,
         long sensitivity);
