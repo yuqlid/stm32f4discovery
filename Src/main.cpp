@@ -99,7 +99,7 @@ int main(void)
   /* USER CODE END WHILE */
 
   /* USER CODE BEGIN 3 */
-	HAL_Delay(50);
+	HAL_Delay(100);
 	led_toggle(LED5);
 	c = getch();
 	putch(c);

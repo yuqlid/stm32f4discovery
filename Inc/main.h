@@ -66,6 +66,8 @@
 #define SPI1_MISO_GPIO_Port GPIOA
 #define SPI1_MOSI_Pin GPIO_PIN_7
 #define SPI1_MOSI_GPIO_Port GPIOA
+#define MPU9250_INT_Pin GPIO_PIN_4
+#define MPU9250_INT_GPIO_Port GPIOC
 #define BOOT1_Pin GPIO_PIN_2
 #define BOOT1_GPIO_Port GPIOB
 #define LD4_Pin GPIO_PIN_12
