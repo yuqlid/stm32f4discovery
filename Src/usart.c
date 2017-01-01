@@ -5,7 +5,7 @@
   *                      of the USART instances.
   ******************************************************************************
   *
-  * COPYRIGHT(c) 2016 STMicroelectronics
+  * COPYRIGHT(c) 2017 STMicroelectronics
   *
   * Redistribution and use in source and binary forms, with or without modification,
   * are permitted provided that the following conditions are met:
@@ -38,7 +38,9 @@
 #include "gpio.h"
 
 /* USER CODE BEGIN 0 */
-
+#include "uart_support.h"
+static USART_Buffer_t* pUSART_Buf;
+USART_Buffer_t USARTx_Buf;
 /* USER CODE END 0 */
 
 UART_HandleTypeDef huart2;
@@ -86,8 +88,20 @@ void HAL_UART_MspInit(UART_HandleTypeDef* uartHandle)
     GPIO_InitStruct.Alternate = GPIO_AF7_USART2;
     HAL_GPIO_Init(GPIOA, &GPIO_InitStruct);
 
+    /* Peripheral interrupt init */
+    HAL_NVIC_SetPriority(USART2_IRQn, 0, 1);
+    HAL_NVIC_EnableIRQ(USART2_IRQn);
   /* USER CODE BEGIN USART2_MspInit 1 */
 
+    /* Init Ring Buffer */
+    pUSART_Buf = &USARTx_Buf;
+    USARTx_Buf.RX_Tail = 0;
+    USARTx_Buf.RX_Head = 0;
+    USARTx_Buf.TX_Tail = 0;
+    USARTx_Buf.TX_Head = 0;
+
+    /* Enable UART Receive interrupts */
+    huart2.Instance->CR1 |= USART_CR1_RXNEIE;
   /* USER CODE END USART2_MspInit 1 */
   }
 }
@@ -109,6 +123,9 @@ void HAL_UART_MspDeInit(UART_HandleTypeDef* uartHandle)
     */
     HAL_GPIO_DeInit(GPIOA, GPIO_PIN_2|GPIO_PIN_3);
 
+    /* Peripheral interrupt Deinit*/
+    HAL_NVIC_DisableIRQ(USART2_IRQn);
+
   }
   /* USER CODE BEGIN USART2_MspDeInit 1 */
 
@@ -116,20 +133,207 @@ void HAL_UART_MspDeInit(UART_HandleTypeDef* uartHandle)
 } 
 
 /* USER CODE BEGIN 1 */
+
+/**************************************************************************/
+/*!
+    Check UART TX Buffer Empty.
+*/
+/**************************************************************************/
+bool USART_TXBuffer_FreeSpace(USART_Buffer_t* USART_buf)
+{
+    /* Make copies to make sure that volatile access is specified. */
+    unsigned int tempHead = (USART_buf->TX_Head + 1) & (UART_BUFSIZE-1);
+    unsigned int tempTail = USART_buf->TX_Tail;
+
+    /* There are data left in the buffer unless Head and Tail are equal. */
+    return (tempHead != tempTail);
+}
+
+/**************************************************************************/
+/*!
+    Put Bytedata with Buffering.
+*/
+/**************************************************************************/
+bool USART_TXBuffer_PutByte(USART_Buffer_t* USART_buf, uint8_t data)
+{
+
+    unsigned int tempTX_Head;
+    bool TXBuffer_FreeSpace;
+
+    TXBuffer_FreeSpace = USART_TXBuffer_FreeSpace(USART_buf);
+
+
+    if(TXBuffer_FreeSpace)
+    {
+        tempTX_Head = USART_buf->TX_Head;
+
+        __disable_irq();
+        USART_buf->TX[tempTX_Head]= data;
+        /* Advance buffer head. */
+        USART_buf->TX_Head = (tempTX_Head + 1) & (UART_BUFSIZE-1);
+        __enable_irq();
+
+        /* Enable TXE interrupt. */
+        huart2.Instance->CR1 |= USART_CR1_TXEIE;
+    }
+    return TXBuffer_FreeSpace;
+}
+
+/**************************************************************************/
+/*!
+    Check UART RX Buffer Empty.
+*/
+/**************************************************************************/
+bool USART_RXBufferData_Available(USART_Buffer_t* USART_buf)
+{
+    /* Make copies to make sure that volatile access is specified. */
+    unsigned int tempHead = pUSART_Buf->RX_Head;
+    unsigned int tempTail = pUSART_Buf->RX_Tail;
+
+    /* There are data left in the buffer unless Head and Tail are equal. */
+    return (tempHead != tempTail);
+}
+
+/**************************************************************************/
+/*!
+    Get Bytedata with Buffering.
+*/
+/**************************************************************************/
+uint8_t USART_RXBuffer_GetByte(USART_Buffer_t* USART_buf)
+{
+    uint8_t ans;
+
+    __disable_irq();
+    ans = (pUSART_Buf->RX[pUSART_Buf->RX_Tail]);
+
+    /* Advance buffer tail. */
+    pUSART_Buf->RX_Tail = (pUSART_Buf->RX_Tail + 1) & (UART_BUFSIZE-1);
+
+    __enable_irq();
+
+    return ans;
+}
+
+/**************************************************************************/
+/*!
+    High Level function.
+*/
+/**************************************************************************/
 /* Send 1 character */
 inline void putch(uint8_t data)
 {
-	/* Polling version */
-	while (!(huart2.Instance->SR & USART_SR_TXE));
-	huart2.Instance->DR = data;
+#if defined(UART_INTERRUPT_MODE)
+    /* Interrupt Version */
+    while(!USART_TXBuffer_FreeSpace(pUSART_Buf));
+    USART_TXBuffer_PutByte(pUSART_Buf,data);
+#else
+    /* Polling version */
+    while (!(huart2.Instance->SR & USART_SR_TXE));
+    huart2.Instance->DR = data;
+#endif
 }
 
+/**************************************************************************/
+/*!
+    High Level function.
+*/
+/**************************************************************************/
 /* Receive 1 character */
 uint8_t getch(void)
 {
 	/* Polling version */
-	while (!(huart2.Instance->SR & USART_SR_RXNE));
-	return (uint8_t)(huart2.Instance->DR);
+
+
+#if defined(UART_INTERRUPT_MODE)
+    if (USART_RXBufferData_Available(pUSART_Buf))  return USART_RXBuffer_GetByte(pUSART_Buf);
+    else                                           return false;
+#else
+    /* Polling version */
+#if (UART_NOBLOCK_RECV == 1)
+    if ((huart2.Instance->SR & USART_SR_RXNE))               return (uint8_t)(UARTx->DR);
+    else                                           return false;
+#else
+    while (!(huart2.Instance->SR & USART_SR_RXNE));
+        return (uint8_t)(huart2.Instance->DR);
+#endif
+#endif
+}
+
+/**************************************************************************/
+/*!
+    High Level function.
+*/
+/**************************************************************************/
+/* Return 1 if key pressed */
+uint8_t keypressed(void)
+{
+#if defined(UART_INTERRUPT_MODE)
+    return (USART_RXBufferData_Available(pUSART_Buf));
+#else
+    return (UARTx->SR & USART_SR_RXNE);
+#endif
+}
+
+/**************************************************************************/
+/*!
+    High Level function.
+*/
+/**************************************************************************/
+/* Send a string */
+void cputs(char *s)
+{
+    while (*s)
+    putch(*s++);
+}
+
+/**************************************************************************/
+/*!
+    High Level function.
+*/
+/**************************************************************************/
+/* Receive a string, with rudimentary line editing */
+void cgets(char *s, int bufsize)
+{
+    char *p;
+    int c;
+
+    memset(s, 0, bufsize);
+
+    p = s;
+
+    for (p = s; p < s + bufsize-1;)
+    {
+        /* 20090521Nemui */
+        do{
+            c = getch();
+        }while(c == false);
+        /* 20090521Nemui */
+        switch (c)
+        {
+            case '\r' :
+            case '\n' :
+                putch('\r');
+                putch('\n');
+                *p = '\n';
+            return;
+
+            case '\b' :
+                if (p > s)
+                {
+                  *p-- = 0;
+                  putch('\b');
+                  putch(' ');
+                  putch('\b');
+                }
+            break;
+
+            default :
+                putch(c);
+                *p++ = c;
+            break;
+        }
+    }
+    return;
 }
 /* USER CODE END 1 */
 

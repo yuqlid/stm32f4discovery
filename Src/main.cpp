@@ -39,8 +39,10 @@
 
 /* USER CODE BEGIN Includes */
 #include "xprintf.h"
-#include "AQM0802A.h"
+//#include "AQM0802A.h"
 #include "led.h"
+#include "uart_support.h"
+//#include "syscalls_if.h"
 /* USER CODE END Includes */
 
 /* Private variables ---------------------------------------------------------*/
@@ -85,35 +87,25 @@ int main(void)
 
 
   /* USER CODE BEGIN 2 */
-  xdev_out(putch);	//xprintf enable
-  AQM0802A lcd(&hi2c2);
+  //xdev_out(putch);	//xprintf enable
+
+  uint8_t c;
   /* USER CODE END 2 */
 
   /* Infinite loop */
   /* USER CODE BEGIN WHILE */
-
-	if(lcd.isonline() == false){
-		xprintf("I2C_ADD = 0x%2X is not online!\r\n", AQCM0802_ADD);
-		Error_Handler();
-	}
-
-	lcd.init();
-	lcd.contrast = 35;
-	lcd.setContrast(lcd.contrast);
 
   while (1)
   {
   /* USER CODE END WHILE */
 
   /* USER CODE BEGIN 3 */
-	HAL_Delay(500);
-	led_toggle(LED6);
+	HAL_Delay(50);
+	led_toggle(LED5);
+	c = getch();
+	putch(c);
+	printf("hello\n");
 	//xprintf("hello\n");
-	lcd.setCursor(0, 0);
-	lcd.printStr("Hello!");
-	HAL_Delay(500);
-	lcd.setCursor(0, 0);
-	lcd.printStr("      ");
 
   }
   /* USER CODE END 3 */

@@ -5,7 +5,7 @@
   *                      of the USART instances.
   ******************************************************************************
   *
-  * COPYRIGHT(c) 2016 STMicroelectronics
+  * COPYRIGHT(c) 2017 STMicroelectronics
   *
   * Redistribution and use in source and binary forms, with or without modification,
   * are permitted provided that the following conditions are met:
@@ -43,13 +43,12 @@
 #include "main.h"
 
 /* USER CODE BEGIN Includes */
-
 /* USER CODE END Includes */
 
 extern UART_HandleTypeDef huart2;
 
 /* USER CODE BEGIN Private defines */
-
+//extern USART_Buffer_t USARTx_Buf;
 /* USER CODE END Private defines */
 
 extern void Error_Handler(void);
@@ -57,8 +56,6 @@ extern void Error_Handler(void);
 void MX_USART2_UART_Init(void);
 
 /* USER CODE BEGIN Prototypes */
-extern void putch(uint8_t c);
-extern uint8_t getch(void);
 /* USER CODE END Prototypes */
 
 #ifdef __cplusplus
