@@ -41,7 +41,6 @@
 #include "xprintf.h"
 //#include "AQM0802A.h"
 #include "led.h"
-#include "uart_support.h"
 //#include "syscalls_if.h"
 /* USER CODE END Includes */
 

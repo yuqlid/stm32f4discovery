@@ -43,12 +43,26 @@
 #include "main.h"
 
 /* USER CODE BEGIN Includes */
+ /* General Inclusion */
+ #include <stdio.h>
+ #include <stdlib.h>
+ #include <string.h>
+ #include <stdbool.h>
+ #include <inttypes.h>
 /* USER CODE END Includes */
 
 extern UART_HandleTypeDef huart2;
 
 /* USER CODE BEGIN Private defines */
-//extern USART_Buffer_t USARTx_Buf;
+#define UartInst    huart2.Instance
+/* USART Definition */
+#define UART_BUFSIZE            128     /* Buffer size MUST Takes power of 2(64,128,256,512...) */
+#define UART_INTERRUPT_MODE     /* If u want polling mode, uncomment this */
+#define UART_NOBLOCK_RECV       1           /* Set 1 to non-blocking receive on polling mode */
+
+/* General Definition */
+#define countof(a)              (sizeof(a) / sizeof(*(a)))
+
 /* USER CODE END Private defines */
 
 extern void Error_Handler(void);
@@ -56,6 +70,33 @@ extern void Error_Handler(void);
 void MX_USART2_UART_Init(void);
 
 /* USER CODE BEGIN Prototypes */
+/* Funcion Prototypes */
+extern void putch(uint8_t c);
+extern uint8_t getch(void);
+extern uint8_t keypressed(void);
+extern void cputs(char *s);
+extern void cgets(char *s, int bufsize);
+
+/* Structs of UART(This is Based on AVRX uC Sample!!!) */
+/* @brief USART transmit and receive ring buffer. */
+typedef struct USART_Buffer
+{
+    /* @brief Receive buffer. */
+    volatile uint8_t RX[UART_BUFSIZE];
+    /* @brief Transmit buffer. */
+    volatile uint8_t TX[UART_BUFSIZE];
+    /* @brief Receive buffer head. */
+    volatile unsigned int RX_Head;
+    /* @brief Receive buffer tail. */
+    volatile unsigned int RX_Tail;
+    /* @brief Transmit buffer head. */
+    volatile unsigned int TX_Head;
+    /* @brief Transmit buffer tail. */
+    volatile unsigned int TX_Tail;
+} USART_Buffer_t;
+
+extern USART_Buffer_t USARTx_Buf;
+
 /* USER CODE END Prototypes */
 
 #ifdef __cplusplus

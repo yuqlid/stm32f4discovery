@@ -37,7 +37,6 @@
 
 /* USER CODE BEGIN 0 */
 #include "usart.h"
-#include "uart_support.h"
 #include "led.h"
 /* USER CODE END 0 */
 

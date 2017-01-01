@@ -38,7 +38,6 @@
 #include "gpio.h"
 
 /* USER CODE BEGIN 0 */
-#include "uart_support.h"
 static USART_Buffer_t* pUSART_Buf;
 USART_Buffer_t USARTx_Buf;
 /* USER CODE END 0 */
@@ -101,7 +100,7 @@ void HAL_UART_MspInit(UART_HandleTypeDef* uartHandle)
     USARTx_Buf.TX_Head = 0;
 
     /* Enable UART Receive interrupts */
-    huart2.Instance->CR1 |= USART_CR1_RXNEIE;
+    UartInst->CR1 |= USART_CR1_RXNEIE;
   /* USER CODE END USART2_MspInit 1 */
   }
 }
@@ -174,7 +173,7 @@ bool USART_TXBuffer_PutByte(USART_Buffer_t* USART_buf, uint8_t data)
         __enable_irq();
 
         /* Enable TXE interrupt. */
-        huart2.Instance->CR1 |= USART_CR1_TXEIE;
+        UartInst->CR1 |= USART_CR1_TXEIE;
     }
     return TXBuffer_FreeSpace;
 }
@@ -228,8 +227,8 @@ inline void putch(uint8_t data)
     USART_TXBuffer_PutByte(pUSART_Buf,data);
 #else
     /* Polling version */
-    while (!(huart2.Instance->SR & USART_SR_TXE));
-    huart2.Instance->DR = data;
+    while (!(UartInst->SR & USART_SR_TXE));
+    UartInst->DR = data;
 #endif
 }
 
@@ -241,20 +240,17 @@ inline void putch(uint8_t data)
 /* Receive 1 character */
 uint8_t getch(void)
 {
-	/* Polling version */
-
-
 #if defined(UART_INTERRUPT_MODE)
-    if (USART_RXBufferData_Available(pUSART_Buf))  return USART_RXBuffer_GetByte(pUSART_Buf);
-    else                                           return false;
+    if (USART_RXBufferData_Available(pUSART_Buf)) return USART_RXBuffer_GetByte(pUSART_Buf);
+    else return false;
 #else
     /* Polling version */
 #if (UART_NOBLOCK_RECV == 1)
-    if ((huart2.Instance->SR & USART_SR_RXNE))               return (uint8_t)(UARTx->DR);
-    else                                           return false;
+    if ((UartInst->SR & USART_SR_RXNE)) return (uint8_t)(UartInst->DR);
+    else return false;
 #else
-    while (!(huart2.Instance->SR & USART_SR_RXNE));
-        return (uint8_t)(huart2.Instance->DR);
+    while (!(UartInst->SR & USART_SR_RXNE));
+        return (uint8_t)(UartInst->DR);
 #endif
 #endif
 }
@@ -270,7 +266,7 @@ uint8_t keypressed(void)
 #if defined(UART_INTERRUPT_MODE)
     return (USART_RXBufferData_Available(pUSART_Buf));
 #else
-    return (UARTx->SR & USART_SR_RXNE);
+    return (UartInst->SR & USART_SR_RXNE);
 #endif
 }
 
