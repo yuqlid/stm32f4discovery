@@ -152,8 +152,8 @@
 	</storageModule>
 	<storageModule moduleId="org.eclipse.cdt.core.LanguageSettingsProviders"/>
 	<storageModule moduleId="refreshScope" versionNumber="2">
-		<configuration configurationName="Debug">
-			<resource resourceType="PROJECT" workspacePath="/stm32f4discovery"/>
+		<configuration artifactName="stm32f4discovery" configurationName="Debug">
+			<resource resourceType="PROJECT" workspacePath="stm32f4discovery"/>
 		</configuration>
 	</storageModule>
 	<storageModule moduleId="org.eclipse.cdt.make.core.buildtargets"/>
