@@ -18,31 +18,32 @@
  */
 
 
-#include <windows.h>
+//#include <windows.h>
 #include <stdio.h>    // sprintf(), vsnprintf(), printf()
 
 #ifdef _MSC_VER
 #define snprintf _snprintf
 #endif
 
-#include "../../../VL53L0X_API/platform/inc/vl53l0x_i2c_platform.h"
-#include "../../../VL53L0X_API/core/inc/vl53l0x_def.h"
+#include "vl53l0x_i2c_platform.h"
+#include "vl53l0x_def.h"
 
 #include <stdio.h>
 #include <stdlib.h>
-#include <windows.h>
 #include <time.h>
-#include "SERIAL_COMMS.h"
+#include "gpio.h"
+#include "i2c.h"
+//#include "SERIAL_COMMS.h"
 //#include "comms_platform.h"
 
-#include "../../../VL53L0X_API/platform/inc/vl53l0x_platform_log.h"
+#include "vl53l0x_platform_log.h"
 
 #ifdef VL53L0X_LOG_ENABLE
 #define trace_print(level, ...) trace_print_module_function(TRACE_MODULE_PLATFORM, level, TRACE_FUNCTION_NONE, ##__VA_ARGS__)
 #define trace_i2c(...) trace_print_module_function(TRACE_MODULE_NONE, TRACE_LEVEL_NONE, TRACE_FUNCTION_I2C, ##__VA_ARGS__)
 #endif
 
-char  debug_string[VL53L0X_MAX_STRING_LENGTH_PLT];
+//char  debug_string[VL53L0X_MAX_STRING_LENGTH_PLT];
 
 uint8_t cached_page = 0;
 
@@ -54,171 +55,25 @@ uint8_t cached_page = 0;
 
 #define MAX_STR_SIZE 255
 #define MAX_MSG_SIZE 100
-#define MAX_DEVICES 4
+//#define MAX_DEVICES 4
 #define STATUS_OK              0x00
 #define STATUS_FAIL            0x01
 
-static HANDLE ghMutex;
+//static HANDLE ghMutex;
 
 static unsigned char _dataBytes[MAX_MSG_SIZE];
-
-bool_t _check_min_version(void)
-{
-    return TRUE;
-}
-
-int VL53L0X_i2c_init(char *comPortStr, unsigned int baudRate) // mja
-{
-    const int cArgc = 7;
-    int argc = cArgc;
-    unsigned int deviceCount = 0;
-    unsigned int comPortId = 0;
-    char errorText[MAX_STR_SIZE];
-    unsigned char devIds[MAX_DEVICES];
-    unsigned int status = STATUS_FAIL;
-    char comPortTmpStr[MAX_STR_SIZE] = "";
-    char baudRateTmpStr[MAX_STR_SIZE] = "";
-    //char tmpStr[MAX_STR_SIZE] = "";
-    //static char argv[7][MAX_STR_SIZE];
-    int i =  0;
-    DWORD dwWaitResult;
-    char **argv = NULL;
-    int ownsMutex = 0;
-
-
-    if(ghMutex == NULL)
-    {
-        ghMutex = CreateMutex(NULL, FALSE, NULL);
-    }
-
-    dwWaitResult = WaitForSingleObject(ghMutex, INFINITE);
-
-    if(dwWaitResult == WAIT_OBJECT_0)
-    {
-        ownsMutex = 1;
-        argv = (char **)malloc(cArgc * sizeof(char *));
-        for(i=0; i < cArgc; i++)
-        {
-            argv[i] = (char *)malloc(MAX_STR_SIZE);
-            argv[i][0] = (char)'\0';
-        }
-
-        sscanf(comPortStr, "COM%d", &comPortId);
-
-
-        status = SERIAL_COMMS_Enum_Devices(MAX_DEVICES, devIds,  (DWORD*)&deviceCount);
-        if(status != STATUS_OK)
-        {
-            SERIAL_COMMS_Get_Error_Text(errorText);
-        }
-        else
-        {
-            /* sprintf(comPortTmpStr,  MAX_STR_SIZE, "COM_PORT=%d",  comPortId); */
-            /* sprintf(baudRateTmpStr, MAX_STR_SIZE, "BAUD_RATE=%d", baudRate); */
-            sprintf(comPortTmpStr,  "COM_PORT=%d",  comPortId);
-            sprintf(baudRateTmpStr, "BAUD_RATE=%d", baudRate);
-
-            /* strncpy(argv[0], MAX_STR_SIZE, comPortTmpStr,                   MAX_STR_SIZE); */
-            /* strncpy(argv[1], MAX_STR_SIZE, baudRateTmpStr,                  MAX_STR_SIZE); */
-            /* strncpy(argv[2], MAX_STR_SIZE, "READ_TIMEOUT_PER_BYTE_MS=2000", MAX_STR_SIZE); */
-            /* strncpy(argv[3], MAX_STR_SIZE, "REPLY_TIMEOUT_MS=2000",         MAX_STR_SIZE); */
-            /* strncpy(argv[4], MAX_STR_SIZE, "REPLY_TERMINATOR=u-boot> ",     MAX_STR_SIZE); */
-            /* strncpy(argv[5], MAX_STR_SIZE, "ALIGN_STRICT=0",                MAX_STR_SIZE); */
-            /* strncpy(argv[6], MAX_STR_SIZE, "FLUSH_ON_ERROR=1",              MAX_STR_SIZE); */
-            strncpy(argv[0], comPortTmpStr,                   MAX_STR_SIZE);
-            strncpy(argv[1], baudRateTmpStr,                  MAX_STR_SIZE);
-            strncpy(argv[2], "READ_TIMEOUT_PER_BYTE_MS=2000", MAX_STR_SIZE);
-            strncpy(argv[3], "REPLY_TIMEOUT_MS=2000",         MAX_STR_SIZE);
-            strncpy(argv[4], "REPLY_TERMINATOR=u-boot> ",     MAX_STR_SIZE);
-            strncpy(argv[5], "ALIGN_STRICT=0",                MAX_STR_SIZE);
-            strncpy(argv[6], "FLUSH_ON_ERROR=1",              MAX_STR_SIZE);
-
-            status = SERIAL_COMMS_Init_UBOOT((unsigned int)devIds[0], argc, argv);
-            if(status != STATUS_OK)
-            {
-                SERIAL_COMMS_Get_Error_Text(errorText);
-                ReleaseMutex(ghMutex);
-                ownsMutex = 0;
-                VL53L0X_comms_close();
-            }
-        }
-    
-        for(i=0; i < cArgc; i++)
-        {
-            free(argv[i]);
-        }
-        free(argv);
-    }
-    else
-    {
-        status = STATUS_FAIL;
-    }
-
-    if(ownsMutex)
-    {
-        ReleaseMutex(ghMutex);
-    }
-
-    return status;
-}
-int32_t VL53L0X_comms_close(void)
-{
-    DWORD dwWaitResult;
-    unsigned int status = STATUS_FAIL;
-    char errorText[MAX_STR_SIZE];
-
-    dwWaitResult = WaitForSingleObject(ghMutex, INFINITE);
-    if(dwWaitResult == WAIT_OBJECT_0)
-    {
-        status =  SERIAL_COMMS_Fini_UBOOT();
-        if(status != STATUS_OK)
-        {
-            SERIAL_COMMS_Get_Error_Text(errorText);
-        }
-        ReleaseMutex(ghMutex);
-    }
-
-    CloseHandle(ghMutex);
-    ghMutex = NULL;
-
-    return status;
-}
 
 int32_t VL53L0X_write_multi(uint8_t address, uint8_t reg, uint8_t *pdata, int32_t count)
 {
     int32_t status = STATUS_OK;
+    if(HAL_I2C_Mem_Write(&hi2c2, address, reg, I2C_MEMADD_SIZE_8BIT, pdata, count, I2C_TIMEOUT) != HAL_OK){
+            	status = STATUS_FAIL;
+            }
 
-    unsigned int retries = 3;
-    uint8_t *pWriteData    = pdata;
-    uint8_t writeDataCount = count;
-    uint8_t writeReg       = reg;
-    DWORD dwWaitResult;
 #ifdef VL53L0X_LOG_ENABLE
     int32_t i = 0;
     char value_as_str[VL53L0X_MAX_STRING_LENGTH_PLT];
     char *pvalue_as_str;
-#endif
-
-    /* For multi writes, the serial comms dll requires multiples 4 bytes or
-     * anything less than 4 bytes. So if an irregular size is required, the
-     * message is broken up into two writes.
-     */
-    if((count > 4) && (count % 4 != 0))
-    {
-        writeDataCount = 4*(count/4);
-        status = VL53L0X_write_multi(address, writeReg, pWriteData, writeDataCount);
-
-        if(status != STATUS_OK)
-        {
-            SERIAL_COMMS_Get_Error_Text(debug_string);
-        }
-        writeReg = reg + writeDataCount;
-        pWriteData += writeDataCount;
-        writeDataCount = count - writeDataCount;
-    }
-
-#ifdef VL53L0X_LOG_ENABLE
-
     pvalue_as_str =  value_as_str;
 
     for(i = 0 ; i < count ; i++)
@@ -230,89 +85,20 @@ int32_t VL53L0X_write_multi(uint8_t address, uint8_t reg, uint8_t *pdata, int32_
     trace_i2c("Write reg : 0x%04X, Val : 0x%s\n", reg, value_as_str);
 #endif
 
-    if(status == STATUS_OK)
-    {
-        dwWaitResult = WaitForSingleObject(ghMutex, INFINITE);
-        if(dwWaitResult == WAIT_OBJECT_0)
-        {
-            do
-            {
-                status = SERIAL_COMMS_Write_UBOOT(address, 0, writeReg, pWriteData, writeDataCount);
-                // note : the field dwIndexHi is ignored. dwIndexLo will
-                // contain the entire index (bits 0..15).
-                if(status != STATUS_OK)
-                {
-                    SERIAL_COMMS_Get_Error_Text(debug_string);
-                }
-            } while ((status != 0) && (retries-- > 0));
-            ReleaseMutex(ghMutex);
-        }
-
-        if(status != STATUS_OK)
-        {
-            SERIAL_COMMS_Get_Error_Text(debug_string);
-        }
-    }
-
     return status;
 }
 
 int32_t VL53L0X_read_multi(uint8_t address, uint8_t index, uint8_t *pdata, int32_t count)
 {
     int32_t status = STATUS_OK;
-    int32_t readDataCount = count;
 
-    unsigned int retries = 3;
-    DWORD dwWaitResult;
-
+    if(HAL_I2C_Mem_Read(&hi2c2, address, index, I2C_MEMADD_SIZE_8BIT, pdata, count, I2C_TIMEOUT) != HAL_OK){
+    	status = STATUS_FAIL;
+    }
 #ifdef VL53L0X_LOG_ENABLE
     int32_t      i = 0;
     char   value_as_str[VL53L0X_MAX_STRING_LENGTH_PLT];
     char *pvalue_as_str;
-#endif
-
-    dwWaitResult = WaitForSingleObject(ghMutex, INFINITE);
-    if(dwWaitResult == WAIT_OBJECT_0)
-    {
-        /* The serial comms interface requires multiples of 4 bytes so we
-         * must apply padding if required.
-         */
-        if((count % 4) != 0)
-        {
-            readDataCount = (4*(count/4)) + 4;
-        }
-
-        if(readDataCount > MAX_MSG_SIZE)
-        {
-            status = STATUS_FAIL;
-        }
-
-        if(status == STATUS_OK)
-        {
-            do
-            {
-                status = SERIAL_COMMS_Read_UBOOT(address, 0, index, _dataBytes, readDataCount);
-                if(status == STATUS_OK)
-                {
-                    memcpy(pdata, &_dataBytes, count);
-                }
-                else
-                {
-                    SERIAL_COMMS_Get_Error_Text(debug_string);
-                }
-                    
-            } while ((status != 0) && (retries-- > 0));
-        }
-        ReleaseMutex(ghMutex);
-    }
-
-    if(status != STATUS_OK)
-    {
-        SERIAL_COMMS_Get_Error_Text(debug_string);
-    }
-
-#ifdef VL53L0X_LOG_ENABLE
-
     // Build  value as string;
     pvalue_as_str =  value_as_str;
 
@@ -437,8 +223,10 @@ int32_t VL53L0X_read_dword(uint8_t address, uint8_t index, uint32_t *pdata)
 int32_t VL53L0X_write_multi16(uint8_t address, uint16_t index, uint8_t *pdata, int32_t count)
 {
     int32_t status = STATUS_OK;
-    unsigned int retries = 3;
-    DWORD dwWaitResult;
+
+    if(HAL_I2C_Mem_Write(&hi2c2, address, index, I2C_MEMADD_SIZE_16BIT, pdata, count, I2C_TIMEOUT) != HAL_OK){
+        	status = STATUS_FAIL;
+    }
 
 #ifdef VL53L0X_LOG_ENABLE
     int32_t i = 0;
@@ -457,71 +245,22 @@ int32_t VL53L0X_write_multi16(uint8_t address, uint16_t index, uint8_t *pdata, i
     trace_i2c("Write reg : 0x%04X, Val : 0x%s\n", index, value_as_str);
 #endif
 
-    dwWaitResult = WaitForSingleObject(ghMutex, INFINITE);
-    if(dwWaitResult == WAIT_OBJECT_0)
-    {
-        do
-        {
-            status = SERIAL_COMMS_Write_UBOOT(address, 0, index, pdata, count);
-            // note : the field dwIndexHi is ignored. dwIndexLo will
-            // contain the entire index (bits 0..15).
-            if(status != STATUS_OK)
-            {
-                SERIAL_COMMS_Get_Error_Text(debug_string);
-            }
-        } while ((status != 0) && (retries-- > 0));
-        ReleaseMutex(ghMutex);
-    }
-
-    // store the page from the high byte of the index
-    cached_page = HIBYTE(index);
-
-    if(status != STATUS_OK)
-    {
-        SERIAL_COMMS_Get_Error_Text(debug_string);
-    }
-
-
     return status;
 }
 
 int32_t VL53L0X_read_multi16(uint8_t address, uint16_t index, uint8_t *pdata, int32_t count)
 {
     int32_t status = STATUS_OK;
-    unsigned int retries = 3;
-    DWORD dwWaitResult;
+
+    if(HAL_I2C_Mem_Read(&hi2c2, address, index, I2C_MEMADD_SIZE_16BIT, pdata, count, I2C_TIMEOUT) != HAL_OK){
+    	status = STATUS_FAIL;
+    }
 
 #ifdef VL53L0X_LOG_ENABLE
     int32_t      i = 0;
 
     char   value_as_str[VL53L0X_MAX_STRING_LENGTH_PLT];
     char *pvalue_as_str;
-#endif
-
-
-    dwWaitResult = WaitForSingleObject(ghMutex, INFINITE);
-    if(dwWaitResult == WAIT_OBJECT_0)
-    {
-        do
-        {
-            status = SERIAL_COMMS_Read_UBOOT(address, 0, index, pdata, count);
-            if(status != STATUS_OK)
-            {
-                SERIAL_COMMS_Get_Error_Text(debug_string);
-            }
-        } while ((status != 0) && (retries-- > 0));
-        ReleaseMutex(ghMutex);
-    }
-
-    // store the page from the high byte of the index
-    cached_page = HIBYTE(index);
-
-    if(status != STATUS_OK)
-    {
-        SERIAL_COMMS_Get_Error_Text(debug_string);
-    }
-
-#ifdef VL53L0X_LOG_ENABLE
     // Build  value as string;
     pvalue_as_str =  value_as_str;
 
@@ -647,12 +386,14 @@ int32_t VL53L0X_platform_wait_us(int32_t wait_us)
     int32_t status = STATUS_OK;
     float wait_ms = (float)wait_us/1000.0f;
 
+	HAL_Delay((uint32_t)wait_ms);
     /*
      * Use windows event handling to perform non-blocking wait.
      */
+	/*
     HANDLE hEvent = CreateEvent(0, TRUE, FALSE, 0);
     WaitForSingleObject(hEvent, (int)(wait_ms + 0.5f));
-
+	 */
 #ifdef VL53L0X_LOG_ENABLE
     trace_i2c("Wait us : %6d\n", wait_us);
 #endif
@@ -666,11 +407,14 @@ int32_t VL53L0X_wait_ms(int32_t wait_ms)
 {
     int32_t status = STATUS_OK;
 
+    HAL_Delay(wait_ms);
     /*
      * Use windows event handling to perform non-blocking wait.
      */
+    /*
     HANDLE hEvent = CreateEvent(0, TRUE, FALSE, 0);
     WaitForSingleObject(hEvent, wait_ms);
+    */
 
 #ifdef VL53L0X_LOG_ENABLE
     trace_i2c("Wait ms : %6d\n", wait_ms);
