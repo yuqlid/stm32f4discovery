@@ -63,28 +63,6 @@ typedef unsigned char bool_t;
 #define    VL53L0X_MAX_STRING_LENGTH_PLT       256
 
 /**
- * @brief  Initialise platform comms.
- *
- * @param  comms_type      - selects between I2C and SPI
- * @param  comms_speed_khz - unsigned short containing the I2C speed in kHz
- *
- * @return status - status 0 = ok, 1 = error
- *
- */
-
-int32_t VL53L0X_comms_initialise(uint8_t  comms_type,
-                                          uint16_t comms_speed_khz);
-
-/**
- * @brief  Close platform comms.
- *
- * @return status - status 0 = ok, 1 = error
- *
- */
-
-int32_t VL53L0X_comms_close(void);
-
-/**
  * @brief  Cycle Power to Device
  *
  * @return status - status 0 = ok, 1 = error

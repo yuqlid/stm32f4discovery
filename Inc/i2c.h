@@ -49,7 +49,7 @@
 extern I2C_HandleTypeDef hi2c2;
 
 /* USER CODE BEGIN Private defines */
-
+#define I2C_TIMEOUT				10 //ms
 /* USER CODE END Private defines */
 
 extern void Error_Handler(void);

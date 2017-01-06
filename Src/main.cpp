@@ -41,6 +41,12 @@
 //#include "xprintf.h"
 //#include "AQM0802A.h"
 #include "led.h"
+#include "vl53l0x_api.h"
+#include "vl53l0x_platform.h"
+#include "required_version.h"
+#include "VL53L0X.h"
+#include "vl53l0x_platform_log.h"
+
 //#include "syscalls_if.h"
 /* USER CODE END Includes */
 
@@ -69,6 +75,14 @@ int main(void)
 
   /* USER CODE BEGIN 1 */
 
+	VL53L0X_Error Status = VL53L0X_ERROR_NONE;
+	VL53L0X_Dev_t MyDevice;
+	VL53L0X_Dev_t *pMyDevice = &MyDevice;
+	VL53L0X_Version_t                   Version;
+	VL53L0X_Version_t                  *pVersion   = &Version;
+	VL53L0X_DeviceInfo_t                DeviceInfo;
+
+
   /* USER CODE END 1 */
 
   /* MCU Configuration----------------------------------------------------------*/
@@ -93,6 +107,86 @@ int main(void)
 
   /* Infinite loop */
   /* USER CODE BEGIN WHILE */
+
+	HAL_GPIO_WritePin(VL53L0X_XSHUT_GPIO_Port, VL53L0X_XSHUT_Pin, GPIO_PIN_RESET);
+	HAL_Delay(300);
+	HAL_GPIO_WritePin(VL53L0X_XSHUT_GPIO_Port, VL53L0X_XSHUT_Pin, GPIO_PIN_SET);
+	HAL_Delay(300);
+
+
+	int32_t status_int;
+	int32_t init_done = 0;
+	// Initialize Comms
+	pMyDevice->I2cDevAddr      =	0x52;
+	pMyDevice->comms_type      =	1;
+	pMyDevice->comms_speed_khz =	400;
+
+#ifdef VL53L0X_LOG_ENABLE
+	VL53L0X_trace_config("test.log", TRACE_MODULE_ALL, TRACE_LEVEL_ALL, TRACE_FUNCTION_ALL);
+#endif
+
+	/*
+	 *  Get the version of the VL53L0X API running in the firmware
+	 */
+
+	if(Status == VL53L0X_ERROR_NONE)
+	{
+		status_int = VL53L0X_GetVersion(pVersion);
+		if (status_int != 0)
+			Status = VL53L0X_ERROR_CONTROL_INTERFACE;
+	}
+
+	/*
+	 *  Verify the version of the VL53L0X API running in the firmware
+	 */
+
+	if(Status == VL53L0X_ERROR_NONE)
+	{
+		if( pVersion->major != VERSION_REQUIRED_MAJOR ||
+				pVersion->minor != VERSION_REQUIRED_MINOR ||
+				pVersion->build != VERSION_REQUIRED_BUILD )
+		{
+			printf("VL53L0X API Version Error: Your firmware has %d.%d.%d (revision %d). This example requires %d.%d.%d.\n",
+					pVersion->major, pVersion->minor, pVersion->build, pVersion->revision,
+					VERSION_REQUIRED_MAJOR, VERSION_REQUIRED_MINOR, VERSION_REQUIRED_BUILD);
+		}
+	}
+
+
+	if(Status == VL53L0X_ERROR_NONE)
+	{
+		printf ("Call of VL53L0X_DataInit\n");
+		Status = VL53L0X_DataInit(&MyDevice); // Data initialization
+		print_pal_error(Status);
+	}
+
+	if(Status == VL53L0X_ERROR_NONE)
+	{
+		Status = VL53L0X_GetDeviceInfo(&MyDevice, &DeviceInfo);
+		if(Status == VL53L0X_ERROR_NONE)
+		{
+			printf("VL53L0X_GetDeviceInfo:\n");
+			printf("Device Name : %s\n", DeviceInfo.Name);
+			printf("Device Type : %s\n", DeviceInfo.Type);
+			printf("Device ID : %s\n", DeviceInfo.ProductId);
+			printf("ProductRevisionMajor : %d\n", DeviceInfo.ProductRevisionMajor);
+			printf("ProductRevisionMinor : %d\n", DeviceInfo.ProductRevisionMinor);
+
+			if ((DeviceInfo.ProductRevisionMinor != 1) && (DeviceInfo.ProductRevisionMinor != 1)) {
+				printf("Error expected cut 1.1 but found cut %d.%d\n",
+						DeviceInfo.ProductRevisionMajor, DeviceInfo.ProductRevisionMinor);
+				Status = VL53L0X_ERROR_NOT_SUPPORTED;
+			}
+		}
+		print_pal_error(Status);
+	}
+
+	if(Status == VL53L0X_ERROR_NONE)
+	{
+		Status = rangingTest(pMyDevice);
+	}
+
+	print_pal_error(Status);
 
   while (1)
   {

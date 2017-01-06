@@ -266,14 +266,6 @@ VL53L0X_Error VL53L0X_PollingDelay(VL53L0X_DEV Dev){
             //Do nothing
             asm("nop");
     }
-/*
-    const DWORD cTimeout_ms = 1;
-    HANDLE hEvent = CreateEvent(0, TRUE, FALSE, 0);
-    if(hEvent != NULL)
-    {
-        WaitForSingleObject(hEvent,cTimeout_ms);
-    }
-*/
     LOG_FUNCTION_END(status);
     return status;
 }
