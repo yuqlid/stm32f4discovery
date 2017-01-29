@@ -48,6 +48,8 @@
 void SysTick_Handler(void);
 void EXTI0_IRQHandler(void);
 void EXTI4_IRQHandler(void);
+void I2C2_EV_IRQHandler(void);
+void I2C2_ER_IRQHandler(void);
 void USART2_IRQHandler(void);
 
 #ifdef __cplusplus

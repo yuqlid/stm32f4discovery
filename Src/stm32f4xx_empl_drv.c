@@ -20,9 +20,10 @@ int stm32f4xx_i2c_write (unsigned char slave_addr,
     if(HAL_SPI_Transmit(&hspi1, (uint8_t*)stm32f4xx_empl_i2c_wb, length + 1, 100) != HAL_OK)Error_Handler();
     deselect();
     */
-	while (__HAL_I2C_GET_FLAG(&hi2c2, I2C_FLAG_BUSY) == SET) ;
+	//while (__HAL_I2C_GET_FLAG(&hi2c2, I2C_FLAG_BUSY) == SET) ;
 
-	if(HAL_I2C_Mem_Write (&hi2c2, slave_addr << 1, reg_addr, I2C_MEMADD_SIZE_8BIT, data, length , 1000) != HAL_OK)Error_Handler();
+	//if(HAL_I2C_Mem_Write (&hi2c2, slave_addr << 1, reg_addr, I2C_MEMADD_SIZE_8BIT, data, length , 1000) != HAL_OK)Error_Handler();
+	if(HAL_I2C_Mem_Write_IT(&hi2c2, slave_addr << 1, reg_addr, I2C_MEMADD_SIZE_8BIT, data, length) != HAL_OK)Error_Handler();
 //	if(HAL_I2C_Master_Transmit (&hi2c1, slave_addr << 1, stm32f4xx_empl_i2c_wb, length + 1, 1000) != HAL_OK)Error_Handler();
 
 	return 0;
@@ -44,6 +45,7 @@ int stm32f4xx_i2c_read  (unsigned char slave_addr,
     while (__HAL_I2C_GET_FLAG(&hi2c2, I2C_FLAG_BUSY) == SET) ;
 
     if(HAL_I2C_Mem_Read (&hi2c2, slave_addr << 1, reg_addr, I2C_MEMADD_SIZE_8BIT, data, length , 1000) != HAL_OK)Error_Handler();
+    //if(HAL_I2C_Mem_Read_IT (&hi2c2, slave_addr << 1, reg_addr, I2C_MEMADD_SIZE_8BIT, data, length) != HAL_OK)Error_Handler();
 	//if(HAL_I2C_Master_Transmit(&hi2c1, slave_addr << 1, &reg_addr, 1, 1000) != HAL_OK)Error_Handler();
 	//if(HAL_I2C_Master_Receive (&hi2c1, slave_addr << 1, data, length, 1000) != HAL_OK)Error_Handler();
 
