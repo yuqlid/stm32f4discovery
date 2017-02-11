@@ -1166,7 +1166,7 @@ void HAL_GPIO_EXTI_Callback(uint16_t GPIO_Pin)
 {
     if(GPIO_Pin == B1_Pin){
         /* Toggle LED3 */
-        led_toggle(LED3);
+        //led_toggle(LED3);
     }else if(GPIO_Pin == MPU9250_INT_Pin){
   /* Every time new gyro data is available, this function is called in an
    * ISR context. In this example, it sets a flag protecting the FIFO read

@@ -38,7 +38,7 @@
 #include "gpio.h"
 
 /* USER CODE BEGIN 0 */
-
+#include "led.h"
 /* USER CODE END 0 */
 
 I2C_HandleTypeDef hi2c2;
@@ -127,7 +127,17 @@ void HAL_I2C_MspDeInit(I2C_HandleTypeDef* i2cHandle)
 } 
 
 /* USER CODE BEGIN 1 */
+/*
+void HAL_I2C_MemTxCpltCallback(I2C_HandleTypeDef *hi2c){
+    led_toggle(LED4);
+}
+void HAL_I2C_MemRxCpltCallback(I2C_HandleTypeDef *hi2c){
+    led_toggle(LED6);
+}
+void HAL_I2C_ErrorCallback(I2C_HandleTypeDef *hi2c){
 
+}
+*/
 /* USER CODE END 1 */
 
 /**
