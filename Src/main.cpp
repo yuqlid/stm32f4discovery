@@ -34,6 +34,7 @@
 #include "main.h"
 #include "stm32f4xx_hal.h"
 #include "i2c.h"
+#include "tim.h"
 #include "usart.h"
 #include "gpio.h"
 
@@ -83,6 +84,7 @@ int main(void)
   MX_GPIO_Init();
   MX_USART2_UART_Init();
   MX_I2C2_Init();
+  MX_TIM12_Init();
 
 
   /* USER CODE BEGIN 2 */
@@ -93,6 +95,8 @@ int main(void)
 
   /* Infinite loop */
   /* USER CODE BEGIN WHILE */
+  start_pwminput();
+  printf("Hello!\n");
 
   while (1)
   {
@@ -101,9 +105,11 @@ int main(void)
   /* USER CODE BEGIN 3 */
 	HAL_Delay(50);
 	led_toggle(LED5);
+	/*
 	c = getch();
 	putch(c);
 	printf("hello\n");
+	*/
 	//xprintf("hello\n");
 
   }
