@@ -103,8 +103,8 @@ int main(void)
   /* USER CODE END WHILE */
 
   /* USER CODE BEGIN 3 */
-	HAL_Delay(50);
-	led_toggle(LED5);
+	HAL_Delay(200);
+	led_toggle(LED6);
 	/*
 	c = getch();
 	putch(c);

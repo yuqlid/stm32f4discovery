@@ -177,7 +177,7 @@ void HAL_TIM_IC_CaptureCallback(TIM_HandleTypeDef *htim)
 
       /* uwFrequency computation
       TIM12 counter clock = (RCC_Clocks.HCLK_Frequency)/2 */
-      uwFrequency = (HAL_RCC_GetHCLKFreq())/2 / uwIC2Value;
+      uwFrequency = (HAL_RCC_GetPCLK2Freq()*htim12.Init.Period) / uwIC2Value;
       printf("freq=%d,duty=%d\n",uwFrequency,uwDutyCycle);
       led_toggle(LED3);
     }
