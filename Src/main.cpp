@@ -83,12 +83,15 @@ int main(void)
   MX_GPIO_Init();
   MX_USART2_UART_Init();
   MX_I2C2_Init();
+  MX_USART3_UART_Init();
 
 
   /* USER CODE BEGIN 2 */
   //xdev_out(putch);	//xprintf enable
 
   uint8_t c;
+#define R1350N_LENGTH 15
+  uint8_t data[R1350N_LENGTH];
   /* USER CODE END 2 */
 
   /* Infinite loop */
@@ -99,11 +102,41 @@ int main(void)
   /* USER CODE END WHILE */
 
   /* USER CODE BEGIN 3 */
-	HAL_Delay(50);
+	//HAL_Delay(10);
 	led_toggle(LED5);
-	c = getch();
-	putch(c);
-	printf("hello\n");
+	//c = getch();
+	//putch(c);
+	//printf("hello\n");
+	HAL_UART_Receive_IT(&huart3,data,R1350N_LENGTH);
+	if(data[0] == 0xAA) {
+	  uint8_t index;
+	  int16_t angle;
+	  int16_t rate;
+	  int16_t x_acc;
+	  int16_t y_acc;
+	  int16_t z_acc;
+	  uint8_t check_sum;
+	  led_toggle(LED4);
+	  index = data[2];
+	  angle = (data[3] & 0xFF) | ((data[4] << 8) & 0xFF00);
+	  rate = (data[5] & 0xFF) | ((data[6] << 8) & 0XFF00);
+	  x_acc = (data[7] & 0xFF) | ((data[8] << 8) & 0xFF00);
+	  y_acc = (data[9] & 0xFF) | ((data[10] << 8) & 0XFF00);
+	  z_acc = (data[11] & 0xFF) | ((data[12] << 8) & 0xFF00);
+	  //reserved = data[13];
+	  check_sum = data[2] + data[3] + data[4] + data[5] + data[6] + data[7] + data[8] + data[9] + data[10] + data[11] + data[12] + data[13];
+	  if(check_sum != data[14]){
+	    //printf("Checksum mismatch error\n");
+	  }else{
+	    led_toggle(LED3);
+	    printf("rate = %6d,",rate);
+	    printf("angle = %6d,",angle);
+	    printf("x_acc = %6d,",x_acc);
+	    printf("y_acc = %6d,",y_acc);
+	    printf("z_acc = %6d\n",z_acc);
+	  }
+
+	}
 	//xprintf("hello\n");
 
   }
